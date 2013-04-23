@@ -13,6 +13,8 @@ TestResults
 *.user
 *.sln.docstates
 app.config
+*.config
+app.config*
 
 # Build results
 [Dd]ebug/
