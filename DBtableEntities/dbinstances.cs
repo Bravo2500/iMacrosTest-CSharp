@@ -18,44 +18,6 @@ namespace iMacrosPostingDashboard
         }
     }
     
-    public class Topicspurseblog : _topicspurseblog
-    {
-        public Topicspurseblog()
-        {
-
-        }
-    }
-
-    public class Topicsaskcom : _topicsaskcom
-    {
-        public Topicsaskcom()
-        {
-
-        }
-    }
-    
-    public class Topicsfamiljeliv : _topicsfamiljeliv
-	{
-		public Topicsfamiljeliv()
-		{
-		
-		}
-	}
-
-    public class Topicsmumsnet : _topicsmumsnet
-	{
-		public Topicsmumsnet()
-		{
-		
-		}
-	}
-	public class Topicsgutefrage : _topicsgutefrage
-	{
-		public Topicsgutefrage()
-		{
-		
-		}
-	}
 	public class Config : _config
 	{
 		public Config()

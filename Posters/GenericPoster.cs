@@ -11,6 +11,8 @@ using Newtonsoft.Json;
 using System.Net;
 using System.Net.Mail;
 using System.Configuration;
+using NUnit.Framework;
+
 
 
 namespace iMacrosPostingDashboard
@@ -28,6 +30,8 @@ namespace iMacrosPostingDashboard
         string passwd = "";
 
         Dictionary<string, string> property = new Dictionary<string, string>();
+
+        iMacrosPostReturnVars poster;
 
         private BackgroundWorker worker;
         private Projects proj;
@@ -60,10 +64,13 @@ namespace iMacrosPostingDashboard
         
         private string kwd = "";
 
+        private int tzoneproject = 0;
+
         public DoWorkEventArgs error;
 
         #endregion
 
+        // Constructors:
         public GenericPoster(ref Object sender, ref DoWorkEventArgs e, string projname, string topictablename, string AnswerTmpl)
         {
             // INITialize all DB objects
@@ -91,6 +98,16 @@ namespace iMacrosPostingDashboard
             e = error;
 
             SelectProject();
+            ParseProperties();
+
+            if (property.ContainsKey("projecttimezone"))
+                try
+                {
+                    tzoneproject = Convert.ToInt32(property["projecttimezone"]);
+                }
+                catch
+                {
+                }
 
             if ((worker.CancellationPending == true))  // if the STOP button has been clicked
             {
@@ -98,7 +115,12 @@ namespace iMacrosPostingDashboard
                 return;
             }
         }
-        
+        public GenericPoster()
+        {
+            // For testing purposes
+        }
+
+        // HELPERS, can REMAIN PRIVATE :
         private bool CancellationIsPending()
         {
             if ((worker.CancellationPending == true))  // if the STOP button has been clicked
@@ -149,40 +171,14 @@ namespace iMacrosPostingDashboard
         }
         private void SleepIfNighttime()  // ONLY works if both StartTime and EndTime are in the same day
         {
-            if ((DateTime.Now.TimeOfDay < StartTime.TimeOfDay) || (DateTime.Now.TimeOfDay > EndTime.TimeOfDay)) worker.ReportProgress((2 * progressvalue), "Night time sleeping until: " + StartTime.ToShortTimeString());
+            if (IsNightTime(StartTime, EndTime, tzoneproject)) worker.ReportProgress((2 * progressvalue), "Night time sleeping until: " + StartTime.ToShortTimeString());
 
-            while ((DateTime.Now.TimeOfDay < StartTime.TimeOfDay) || (DateTime.Now.TimeOfDay > EndTime.TimeOfDay))
+            while (IsNightTime(StartTime, EndTime, tzoneproject))
             {
                 //
                 System.Threading.Thread.Sleep((1000 * 60 * 10));
             }
 
-        }
-        private void SelectProject()  // ProjectName is passed to the Class Constructor
-        {
-            worker.ReportProgress((2 * progressvalue++), "Initialized. Selecting the project. ");
-
-            int counter1 = 0;
-            
-            SelectProjectAgain:
-                proj.Where.ProjectName.Value = ProjectName;
-                proj.Where.ProjectName.Operator = WhereParameter.Operand.Equal;
-                try
-                {
-                    proj.Query.Load();
-                }
-                catch
-                {
-                    counter1++;
-                    if (counter1 >= 4) return;
-                    goto SelectProjectAgain;
-                }
-                worker.ReportProgress((2 * progressvalue++), "Project selected. ");            
-        }
-        private void SaveMacroCodes()
-        {
-            iMacrosCreateAccountCode = proj.ImacrosCreateAccCode;
-            iMacrosLoginAndPostCode = proj.ImacrosLoginPost;
         }
         private void ParseProperties()
         {
@@ -209,6 +205,40 @@ namespace iMacrosPostingDashboard
                 property = new Dictionary<string, string>();
                 property.Add("empty", "empty");
             }
+        }
+
+        // TESTABLE METHODS :
+        public bool IsNightTime(DateTime Start, DateTime End, int tzone)
+        {
+            //
+
+            if ((DateTime.Now.AddHours(tzone).TimeOfDay < Start.TimeOfDay) || (DateTime.Now.AddHours(tzone).TimeOfDay > End.TimeOfDay))
+                return true;
+            else return false;
+        }
+        private void SelectProject()
+        {
+            worker.ReportProgress((2 * progressvalue++), "Initialized. Selecting the project. ");
+            int counter1 = 0;
+            SelectProjectAgain:
+                proj.Where.ProjectName.Value = ProjectName;
+                proj.Where.ProjectName.Operator = WhereParameter.Operand.Equal;
+                try
+                {
+                    proj.Query.Load();
+                }
+                catch
+                {
+                    counter1++;
+                    if (counter1 >= 4) return;
+                    goto SelectProjectAgain;
+                }
+                worker.ReportProgress((2 * progressvalue++), "Project selected. ");            
+        }
+        private void SaveMacroCodes()
+        {
+            iMacrosCreateAccountCode = proj.ImacrosCreateAccCode;
+            iMacrosLoginAndPostCode = proj.ImacrosLoginPost;
         }
         private int NumberOfKwdsRemaining()
         {
@@ -823,15 +853,10 @@ namespace iMacrosPostingDashboard
             }
             worker.ReportProgress((2 * progressvalue++), "[url]s DONE.");
         }
-        private bool PostTheAnswer()
+        private iMacrosPostReturnVars PostTheAnswer()
         {
             worker.ReportProgress((2 * progressvalue++), "Posting an answer.");
-            if (stdfunc.LoginAndPost(tblaccts.Username, tblaccts.Email, passwd, tblproxies.Proxy, tbltopics.Link, GeneratedResponse, proj.ImacrosLoginPost))
-            {
-                worker.ReportProgress((2 * progressvalue++), "Successfully posted.");
-                return true;
-            }
-            else return false;
+            return stdfunc.LoginAndPost(tblaccts.Username, tblaccts.Email, passwd, tblproxies.Proxy, tbltopics.Link, GeneratedResponse, proj.ImacrosLoginPost);
         }
         private void IncrementDBValues()
         {
@@ -864,13 +889,14 @@ namespace iMacrosPostingDashboard
                     goto IncrementValuesAgain;
                 }
         }
-        private void UpdatePostedStatus()
+        private void UpdatePostedStatus(sbyte status, string returnURL = "")
         {
             int counter7 = 0;
         
             UpdatePostedStatusAgain:
-                tbltopics.PostedStatus = 1;
+                tbltopics.PostedStatus = status;
                 tbltopics.PostingTime = DateTime.Now;
+                tbltopics.PostURLexact = returnURL;
                 try
                 {
                     tbltopics.Save();
@@ -956,12 +982,10 @@ namespace iMacrosPostingDashboard
                         if (CancellationIsPending()) return;
                 SelectProject();
                     if (CancellationIsPending()) return;
-
                 SaveMacroCodes();
                         if (CancellationIsPending()) return;
-                ParseProperties();
-                        if (CancellationIsPending()) return;
                 SelectNextTopic();
+                UpdatePostedStatus(2);
                         if (CancellationIsPending()) return;
                 WaitForKeywordsOrShutTheProcessDown();
                         if (CancellationIsPending()) return;
@@ -981,6 +1005,7 @@ namespace iMacrosPostingDashboard
 
                     if (ConfirmNewAccount())
                     {
+                        UpdatePostedStatus(3);
                         ProduceLongURL();
                         if (CancellationIsPending()) return;
                         ProduceShortURL();
@@ -989,14 +1014,18 @@ namespace iMacrosPostingDashboard
                         if (CancellationIsPending()) return;
                         ReplaceURLs();
                         if (CancellationIsPending()) return;
-                        if (PostTheAnswer())
+
+                        poster = new iMacrosPostReturnVars();
+                        poster = PostTheAnswer();
+                        if (poster.getSuccess())
                         {
                             IncrementDBValues();
-                            UpdatePostedStatus();
+                            UpdatePostedStatus(1, poster.getReturnURL());
                             if (CancellationIsPending()) return;
                         }
                         else // if not successfully posted (i.e. no TinyURL in the final page result)
                         {
+                            UpdatePostedStatus(4);
                             IncrementDBValues();
                             if (CancellationIsPending()) return;
                         }

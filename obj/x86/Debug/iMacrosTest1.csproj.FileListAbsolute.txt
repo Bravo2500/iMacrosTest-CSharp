@@ -49,3 +49,6 @@ C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\
 C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\bin\Release\MyGeneration.dOOdads_2005.pdb
 C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\bin\Release\Newtonsoft.Json.pdb
 C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\bin\Release\Newtonsoft.Json.xml
+C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\bin\Release\nunit.framework.dll
+C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\bin\Release\nunit.mocks.dll
+C:\Users\Ugnius\Documents\Visual Studio 2012\Projects\iMacrosTest1\iMacrosTest1\bin\Release\nunit.framework.xml

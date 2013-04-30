@@ -84,8 +84,7 @@ namespace iMacrosPostingDashboard
         public string[] CreateAccountWithCaptcha(Emailaccounts tblaccouts, string proxy, string CreateMacro, string topic)
         {
             string[] ErrAndId = new string[2];
-            
-            TryAgain:
+        
                 iMacros.App m_app = new iMacros.App();
                 iMacros.Status s = new iMacros.Status();
                 s = m_app.iimOpen("", true, m_timeout);
@@ -313,44 +312,21 @@ namespace iMacrosPostingDashboard
                 return false;
             }
         }
-        public void UnitTest()
-        {
-            //
-            Responses tblresp = new Responses();
-            Topicsgutefrage tbltopics = new Topicsgutefrage();
-
-            tblresp.Where.Id.Value = 1;
-            tblresp.Where.Id.Operator = WhereParameter.Operand.Equal;
-            tblresp.Query.Load();
-
-            // Replace [URL] in a template
-
-            string cresponse = tblresp.Response;
-            cresponse = cresponse.Replace("[url]", "http://tinyurl.com/");
-
-            tbltopics.Where.Id.Value = 5270;
-            tbltopics.Where.Id.Operator = WhereParameter.Operand.Equal;
-            tbltopics.Query.Load();
-
-            tbltopics.Response = cresponse;
-            tbltopics.Save();
-            string query = tbltopics.Query.LastQuery;
-            // MessageBox.Show(query);
-        }
-
         private string getCheckifpostedmacro()
         {
             string macrocode = "";
             macrocode = "WAIT SECONDS=1" + Environment.NewLine;
             macrocode += "TAG POS=1 TYPE=A ATTR=TXT:http://tinyurl.com/* EXTRACT=HREF" + Environment.NewLine;
             macrocode += "WAIT SECONDS=1" + Environment.NewLine;
+            macrocode += "ADD !EXTRACT {{!URLCURRENT}}" + Environment.NewLine;
+            macrocode += "WAIT SECONDS=1" + Environment.NewLine;
 
             return macrocode;
         }
-        public bool LoginAndPost(string Username, string Email, string Password, string Proxy, string LinkToPost, string GeneratedResponse, string macro)
+        public iMacrosPostReturnVars LoginAndPost(string Username, string Email, string Password, string Proxy, string LinkToPost, string GeneratedResponse, string macro)
         {
-            bool Success = false;
             string macrocheckifposted = "";
+            iMacrosPostReturnVars localposter = new iMacrosPostReturnVars();
 
             macrocheckifposted = getCheckifpostedmacro();
 
@@ -368,12 +344,12 @@ namespace iMacrosPostingDashboard
             // Execute macro
             s = m_app.iimPlayCode(macro, m_timeout);
             
-            /*
             s = m_app.iimPlayCode(macrocheckifposted, m_timeout);
-            if (m_app.iimGetExtract(1) != "#EANF#") Success = true;
-            else Success = false;
-            */
+            if (m_app.iimGetExtract(1) != "#EANF#") localposter.setSuccess(true);
+            else localposter.setSuccess(false);
 
+            if (m_app.iimGetExtract(2) != "NODATA") localposter.setReturnURL(m_app.iimGetExtract(2));
+            
             try
             {
                 s = m_app.iimClose(close_timeout);
@@ -387,15 +363,7 @@ namespace iMacrosPostingDashboard
         JustContinue:
             m_app = null;
 
-            // Get variable from macro and return
-
-
-            // *************************************************
-            Success = true; // TEMPORARY VALUE for DEBUGGING 
-            // *************************************************
-
-
-            return Success;
+            return localposter;
         }
 
         public bool CreateAccountPurseBlog(string username, string email, string pwd, string fname, string proxy, string CreateMacro)
@@ -594,5 +562,34 @@ namespace iMacrosPostingDashboard
         { return errorNum; }
     }
     #endregion
+
+    public class iMacrosPostReturnVars
+    {
+        private bool Success;
+        private string ReturnURL;
+
+        public iMacrosPostReturnVars()
+        {
+            this.Success = false;
+            this.ReturnURL = "";
+        }
+        public bool getSuccess()
+        {
+            return this.Success;
+        }
+        public void setSuccess(bool Suc)
+        {
+            this.Success = Suc;
+        }
+        public string getReturnURL()
+        {
+            return this.ReturnURL;
+        }
+        public void setReturnURL(string url)
+        {
+            this.ReturnURL = url;
+        }
+    }
+
 
 }

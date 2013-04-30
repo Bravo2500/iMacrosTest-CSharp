@@ -27,19 +27,20 @@ using System.Data;
 using MySql.Data.MySqlClient;
 using System.Collections;
 using System.Collections.Specialized;
-
 using MyGeneration.dOOdads;
+
 
 namespace iMacrosPostingDashboard
 {
 	public abstract class _topicsgeneric : MySql4Entity
 	{
-		public _topicsgeneric()
-		{
-			this.QuerySource = "";
-			this.MappingName = "";
+        // public string tablename = "";
 
-		}	
+        public _topicsgeneric()
+		{
+            this.QuerySource = "";
+            this.MappingName = "";
+		}
 
 		//=================================================================
 		//  public Overrides void AddNew()
@@ -119,15 +120,6 @@ namespace iMacrosPostingDashboard
 				}
 			}
 			
-			public static MySqlParameter TopicTranslated
-			{
-				get
-				{
-					return new MySqlParameter("?TopicTranslated", MySqlDbType.Blob);
-
-				}
-			}
-			
 			public static MySqlParameter PostingTime
 			{
 				get
@@ -146,15 +138,6 @@ namespace iMacrosPostingDashboard
 				}
 			}
 			
-			public static MySqlParameter PostURLexact
-			{
-				get
-				{
-					return new MySqlParameter("?PostURLexact", MySqlDbType.VarChar);
-
-				}
-			}
-			
 			public static MySqlParameter ProductKeyword
 			{
 				get
@@ -168,7 +151,7 @@ namespace iMacrosPostingDashboard
 			{
 				get
 				{
-					return new MySqlParameter("?LongURL1", MySqlDbType.Blob);
+					return new MySqlParameter("?LongURL1", MySqlDbType.VarChar);
 
 				}
 			}
@@ -177,7 +160,7 @@ namespace iMacrosPostingDashboard
 			{
 				get
 				{
-					return new MySqlParameter("?LongURL2", MySqlDbType.Blob);
+					return new MySqlParameter("?LongURL2", MySqlDbType.VarChar);
 
 				}
 			}
@@ -245,10 +228,8 @@ namespace iMacrosPostingDashboard
             public const string Id = "Id";
             public const string Link = "Link";
             public const string Topic = "Topic";
-            public const string TopicTranslated = "TopicTranslated";
             public const string PostingTime = "PostingTime";
             public const string PostedStatus = "PostedStatus";
-            public const string PostURLexact = "PostURLexact";
             public const string ProductKeyword = "ProductKeyword";
             public const string LongURL1 = "LongURL1";
             public const string LongURL2 = "LongURL2";
@@ -268,10 +249,8 @@ namespace iMacrosPostingDashboard
 					ht[Id] = _topicsgeneric.PropertyNames.Id;
 					ht[Link] = _topicsgeneric.PropertyNames.Link;
 					ht[Topic] = _topicsgeneric.PropertyNames.Topic;
-					ht[TopicTranslated] = _topicsgeneric.PropertyNames.TopicTranslated;
 					ht[PostingTime] = _topicsgeneric.PropertyNames.PostingTime;
 					ht[PostedStatus] = _topicsgeneric.PropertyNames.PostedStatus;
-					ht[PostURLexact] = _topicsgeneric.PropertyNames.PostURLexact;
 					ht[ProductKeyword] = _topicsgeneric.PropertyNames.ProductKeyword;
 					ht[LongURL1] = _topicsgeneric.PropertyNames.LongURL1;
 					ht[LongURL2] = _topicsgeneric.PropertyNames.LongURL2;
@@ -296,10 +275,8 @@ namespace iMacrosPostingDashboard
             public const string Id = "Id";
             public const string Link = "Link";
             public const string Topic = "Topic";
-            public const string TopicTranslated = "TopicTranslated";
             public const string PostingTime = "PostingTime";
             public const string PostedStatus = "PostedStatus";
-            public const string PostURLexact = "PostURLexact";
             public const string ProductKeyword = "ProductKeyword";
             public const string LongURL1 = "LongURL1";
             public const string LongURL2 = "LongURL2";
@@ -319,10 +296,8 @@ namespace iMacrosPostingDashboard
 					ht[Id] = _topicsgeneric.ColumnNames.Id;
 					ht[Link] = _topicsgeneric.ColumnNames.Link;
 					ht[Topic] = _topicsgeneric.ColumnNames.Topic;
-					ht[TopicTranslated] = _topicsgeneric.ColumnNames.TopicTranslated;
 					ht[PostingTime] = _topicsgeneric.ColumnNames.PostingTime;
 					ht[PostedStatus] = _topicsgeneric.ColumnNames.PostedStatus;
-					ht[PostURLexact] = _topicsgeneric.ColumnNames.PostURLexact;
 					ht[ProductKeyword] = _topicsgeneric.ColumnNames.ProductKeyword;
 					ht[LongURL1] = _topicsgeneric.ColumnNames.LongURL1;
 					ht[LongURL2] = _topicsgeneric.ColumnNames.LongURL2;
@@ -347,10 +322,8 @@ namespace iMacrosPostingDashboard
             public const string Id = "s_Id";
             public const string Link = "s_Link";
             public const string Topic = "s_Topic";
-            public const string TopicTranslated = "s_TopicTranslated";
             public const string PostingTime = "s_PostingTime";
             public const string PostedStatus = "s_PostedStatus";
-            public const string PostURLexact = "s_PostURLexact";
             public const string ProductKeyword = "s_ProductKeyword";
             public const string LongURL1 = "s_LongURL1";
             public const string LongURL2 = "s_LongURL2";
@@ -402,18 +375,6 @@ namespace iMacrosPostingDashboard
 			}
 		}
 
-		public virtual string TopicTranslated
-	    {
-			get
-	        {
-				return base.Getstring(ColumnNames.TopicTranslated);
-			}
-			set
-	        {
-				base.Setstring(ColumnNames.TopicTranslated, value);
-			}
-		}
-
 		public virtual DateTime PostingTime
 	    {
 			get
@@ -435,18 +396,6 @@ namespace iMacrosPostingDashboard
 			set
 	        {
 				base.Setsbyte(ColumnNames.PostedStatus, value);
-			}
-		}
-
-		public virtual string PostURLexact
-	    {
-			get
-	        {
-				return base.Getstring(ColumnNames.PostURLexact);
-			}
-			set
-	        {
-				base.Setstring(ColumnNames.PostURLexact, value);
 			}
 		}
 
@@ -608,21 +557,6 @@ namespace iMacrosPostingDashboard
 			}
 		}
 
-		public virtual string s_TopicTranslated
-	    {
-			get
-	        {
-				return this.IsColumnNull(ColumnNames.TopicTranslated) ? string.Empty : base.GetstringAsString(ColumnNames.TopicTranslated);
-			}
-			set
-	        {
-				if(string.Empty == value)
-					this.SetColumnNull(ColumnNames.TopicTranslated);
-				else
-					this.TopicTranslated = base.SetstringAsString(ColumnNames.TopicTranslated, value);
-			}
-		}
-
 		public virtual string s_PostingTime
 	    {
 			get
@@ -650,21 +584,6 @@ namespace iMacrosPostingDashboard
 					this.SetColumnNull(ColumnNames.PostedStatus);
 				else
 					this.PostedStatus = base.SetsbyteAsString(ColumnNames.PostedStatus, value);
-			}
-		}
-
-		public virtual string s_PostURLexact
-	    {
-			get
-	        {
-				return this.IsColumnNull(ColumnNames.PostURLexact) ? string.Empty : base.GetstringAsString(ColumnNames.PostURLexact);
-			}
-			set
-	        {
-				if(string.Empty == value)
-					this.SetColumnNull(ColumnNames.PostURLexact);
-				else
-					this.PostURLexact = base.SetstringAsString(ColumnNames.PostURLexact, value);
 			}
 		}
 
@@ -866,16 +785,6 @@ namespace iMacrosPostingDashboard
 					}
 				}
 
-				public WhereParameter TopicTranslated
-				{
-					get
-					{
-							WhereParameter where = new WhereParameter(ColumnNames.TopicTranslated, Parameters.TopicTranslated);
-							this._clause._entity.Query.AddWhereParameter(where);
-							return where;
-					}
-				}
-
 				public WhereParameter PostingTime
 				{
 					get
@@ -891,16 +800,6 @@ namespace iMacrosPostingDashboard
 					get
 					{
 							WhereParameter where = new WhereParameter(ColumnNames.PostedStatus, Parameters.PostedStatus);
-							this._clause._entity.Query.AddWhereParameter(where);
-							return where;
-					}
-				}
-
-				public WhereParameter PostURLexact
-				{
-					get
-					{
-							WhereParameter where = new WhereParameter(ColumnNames.PostURLexact, Parameters.PostURLexact);
 							this._clause._entity.Query.AddWhereParameter(where);
 							return where;
 					}
@@ -1037,18 +936,6 @@ namespace iMacrosPostingDashboard
 				}
 			}
 
-			public WhereParameter TopicTranslated
-		    {
-				get
-		        {
-					if(_TopicTranslated_W == null)
-	        	    {
-						_TopicTranslated_W = TearOff.TopicTranslated;
-					}
-					return _TopicTranslated_W;
-				}
-			}
-
 			public WhereParameter PostingTime
 		    {
 				get
@@ -1070,18 +957,6 @@ namespace iMacrosPostingDashboard
 						_PostedStatus_W = TearOff.PostedStatus;
 					}
 					return _PostedStatus_W;
-				}
-			}
-
-			public WhereParameter PostURLexact
-		    {
-				get
-		        {
-					if(_PostURLexact_W == null)
-	        	    {
-						_PostURLexact_W = TearOff.PostURLexact;
-					}
-					return _PostURLexact_W;
 				}
 			}
 
@@ -1196,10 +1071,8 @@ namespace iMacrosPostingDashboard
 			private WhereParameter _Id_W = null;
 			private WhereParameter _Link_W = null;
 			private WhereParameter _Topic_W = null;
-			private WhereParameter _TopicTranslated_W = null;
 			private WhereParameter _PostingTime_W = null;
 			private WhereParameter _PostedStatus_W = null;
-			private WhereParameter _PostURLexact_W = null;
 			private WhereParameter _ProductKeyword_W = null;
 			private WhereParameter _LongURL1_W = null;
 			private WhereParameter _LongURL2_W = null;
@@ -1215,10 +1088,8 @@ namespace iMacrosPostingDashboard
 				_Id_W = null;
 				_Link_W = null;
 				_Topic_W = null;
-				_TopicTranslated_W = null;
 				_PostingTime_W = null;
 				_PostedStatus_W = null;
-				_PostURLexact_W = null;
 				_ProductKeyword_W = null;
 				_LongURL1_W = null;
 				_LongURL2_W = null;
@@ -1314,16 +1185,6 @@ namespace iMacrosPostingDashboard
 					}
 				}
 
-				public AggregateParameter TopicTranslated
-				{
-					get
-					{
-							AggregateParameter aggregate = new AggregateParameter(ColumnNames.TopicTranslated, Parameters.TopicTranslated);
-							this._clause._entity.Query.AddAggregateParameter(aggregate);
-							return aggregate;
-					}
-				}
-
 				public AggregateParameter PostingTime
 				{
 					get
@@ -1339,16 +1200,6 @@ namespace iMacrosPostingDashboard
 					get
 					{
 							AggregateParameter aggregate = new AggregateParameter(ColumnNames.PostedStatus, Parameters.PostedStatus);
-							this._clause._entity.Query.AddAggregateParameter(aggregate);
-							return aggregate;
-					}
-				}
-
-				public AggregateParameter PostURLexact
-				{
-					get
-					{
-							AggregateParameter aggregate = new AggregateParameter(ColumnNames.PostURLexact, Parameters.PostURLexact);
 							this._clause._entity.Query.AddAggregateParameter(aggregate);
 							return aggregate;
 					}
@@ -1485,18 +1336,6 @@ namespace iMacrosPostingDashboard
 				}
 			}
 
-			public AggregateParameter TopicTranslated
-		    {
-				get
-		        {
-					if(_TopicTranslated_W == null)
-	        	    {
-						_TopicTranslated_W = TearOff.TopicTranslated;
-					}
-					return _TopicTranslated_W;
-				}
-			}
-
 			public AggregateParameter PostingTime
 		    {
 				get
@@ -1518,18 +1357,6 @@ namespace iMacrosPostingDashboard
 						_PostedStatus_W = TearOff.PostedStatus;
 					}
 					return _PostedStatus_W;
-				}
-			}
-
-			public AggregateParameter PostURLexact
-		    {
-				get
-		        {
-					if(_PostURLexact_W == null)
-	        	    {
-						_PostURLexact_W = TearOff.PostURLexact;
-					}
-					return _PostURLexact_W;
 				}
 			}
 
@@ -1644,10 +1471,8 @@ namespace iMacrosPostingDashboard
 			private AggregateParameter _Id_W = null;
 			private AggregateParameter _Link_W = null;
 			private AggregateParameter _Topic_W = null;
-			private AggregateParameter _TopicTranslated_W = null;
 			private AggregateParameter _PostingTime_W = null;
 			private AggregateParameter _PostedStatus_W = null;
-			private AggregateParameter _PostURLexact_W = null;
 			private AggregateParameter _ProductKeyword_W = null;
 			private AggregateParameter _LongURL1_W = null;
 			private AggregateParameter _LongURL2_W = null;
@@ -1663,10 +1488,8 @@ namespace iMacrosPostingDashboard
 				_Id_W = null;
 				_Link_W = null;
 				_Topic_W = null;
-				_TopicTranslated_W = null;
 				_PostingTime_W = null;
 				_PostedStatus_W = null;
-				_PostURLexact_W = null;
 				_ProductKeyword_W = null;
 				_LongURL1_W = null;
 				_LongURL2_W = null;
@@ -1713,10 +1536,8 @@ namespace iMacrosPostingDashboard
 			(
 				`Link`,
 				`Topic`,
-				`TopicTranslated`,
 				`PostingTime`,
 				`PostedStatus`,
-				`PostURLexact`,
 				`ProductKeyword`,
 				`LongURL1`,
 				`LongURL2`,
@@ -1731,10 +1552,8 @@ namespace iMacrosPostingDashboard
 			(
 				?Link,
 				?Topic,
-				?TopicTranslated,
 				?PostingTime,
 				?PostedStatus,
-				?PostURLexact,
 				?ProductKeyword,
 				?LongURL1,
 				?LongURL2,
@@ -1758,10 +1577,8 @@ namespace iMacrosPostingDashboard
 			@"UPDATE `" + this.MappingName + @"` SET 
 				`Link`=?Link,
 				`Topic`=?Topic,
-				`TopicTranslated`=?TopicTranslated,
 				`PostingTime`=?PostingTime,
 				`PostedStatus`=?PostedStatus,
-				`PostURLexact`=?PostURLexact,
 				`ProductKeyword`=?ProductKeyword,
 				`LongURL1`=?LongURL1,
 				`LongURL2`=?LongURL2,
@@ -1813,20 +1630,12 @@ namespace iMacrosPostingDashboard
 			p.SourceColumn = ColumnNames.Topic;
 			p.SourceVersion = DataRowVersion.Current;
 
-			p = cmd.Parameters.Add(Parameters.TopicTranslated);
-			p.SourceColumn = ColumnNames.TopicTranslated;
-			p.SourceVersion = DataRowVersion.Current;
-
 			p = cmd.Parameters.Add(Parameters.PostingTime);
 			p.SourceColumn = ColumnNames.PostingTime;
 			p.SourceVersion = DataRowVersion.Current;
 
 			p = cmd.Parameters.Add(Parameters.PostedStatus);
 			p.SourceColumn = ColumnNames.PostedStatus;
-			p.SourceVersion = DataRowVersion.Current;
-
-			p = cmd.Parameters.Add(Parameters.PostURLexact);
-			p.SourceColumn = ColumnNames.PostURLexact;
 			p.SourceVersion = DataRowVersion.Current;
 
 			p = cmd.Parameters.Add(Parameters.ProductKeyword);
