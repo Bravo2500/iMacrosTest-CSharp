@@ -316,7 +316,7 @@ namespace iMacrosPostingDashboard
         {
             string macrocode = "";
             macrocode = "WAIT SECONDS=1" + Environment.NewLine;
-            macrocode += "TAG POS=1 TYPE=A ATTR=TXT:http://tinyurl.com/* EXTRACT=HREF" + Environment.NewLine;
+            macrocode += "TAG POS=1 TYPE=A ATTR=HREF:http://tinyurl.com/* EXTRACT=TXT" + Environment.NewLine;
             macrocode += "WAIT SECONDS=1" + Environment.NewLine;
             macrocode += "ADD !EXTRACT {{!URLCURRENT}}" + Environment.NewLine;
             macrocode += "WAIT SECONDS=1" + Environment.NewLine;

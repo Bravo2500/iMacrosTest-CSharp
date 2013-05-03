@@ -7,6 +7,10 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Net;
+using System.Net.Mail;
+using System.Configuration;
+
 
 namespace iMacrosPostingDashboard
 {
@@ -52,7 +56,47 @@ namespace iMacrosPostingDashboard
 
             // e.g.  "MumsNetUK", "topicsmumsnet", "AmazonUK-one-link"
         }
-        
+
+
+        private void EmailProjStatus()
+        {
+            // READ FROM CONFIG FILE 
+            string fromSender = (string)ConfigurationManager.AppSettings["Sender"];
+            string toReceiver = (string)ConfigurationManager.AppSettings["ReceiverAdmin"];
+            string SenderPass = (string)ConfigurationManager.AppSettings["SenderPass"];
+
+            // STANDARD SMTP SENDER CODE 
+            var fromAddress = new MailAddress(fromSender, "Forumu Statusas");
+            var toAddress = new MailAddress(toReceiver, "");
+            string fromPassword = SenderPass;
+            string subject5orless = "Pranešimas: forumas " + locProjName + " sustojo";
+            string subjectNone = "Pranešimas: forumas " + locProjName + " sustojo";
+            string subject = "Pranešimas: forumas " + locProjName + " sustojo";
+
+            string body = @" \n";
+
+            // if (Anykwdsleft) subject = subject5orless;
+            // else subject = subjectNone;
+
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            };
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body
+            })
+            {
+                smtp.Send(message);
+            }
+        }
+
         public void bwStartDataGrid(Object sender, EventArgs e)
         {
             // btnStart.Enabled = false;
@@ -92,6 +136,7 @@ namespace iMacrosPostingDashboard
         }
         private void bw_RunWorkerCompdDataGrid(Object sender, RunWorkerCompletedEventArgs e)
         {
+            EmailProjStatus();
             if (e.Error != null)
             {
                 localTableRow.ProgressReport += "Errors occured. Please see log above." + Environment.NewLine;

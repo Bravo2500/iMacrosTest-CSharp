@@ -343,7 +343,6 @@ namespace iMacrosPostingDashboard
             
             kwd = tbltopics.ProductKeyword;
             worker.ReportProgress((2 * progressvalue), "Topic selected. ");
-
         }
         private void WaitForKeywordsOrShutTheProcessDown()
         {
@@ -640,14 +639,17 @@ namespace iMacrosPostingDashboard
                     tblaff.Query.Load();
                     // System.Threading.Thread.Sleep((1000 * 1 * 4));
                     if (KwdsNoSpace == "titulinis")
-                        tbltopics.LongURL1 = tblaff.HomePageLink;
+                    {
+                        tbltopics.LongURL1 = tblaff.HomePageLink.ToString();
+                    }
                     else tbltopics.LongURL1 = tblaff.PreKeywordLinkPart + KwdsNoSpace + tblaff.PostKeywordLinkPart;
                     try
                     {
-                           tbltopics.Save();
+                           // tbltopics.Save();
                     }
                     catch (DBConcurrencyException ex)
                     {
+                        #region
                         string customErrorMessage;
                         customErrorMessage = "Concurrency violation\n";
                         customErrorMessage += ex.Row[0].ToString() + "\n";
@@ -655,6 +657,7 @@ namespace iMacrosPostingDashboard
                         customErrorMessage += "Last Load() query: \n";
                         MessageBox.Show(customErrorMessage);
                         // Add business logic code to resolve the concurrency violation...
+                        #endregion
                     }   
                 }
             }
@@ -670,12 +673,23 @@ namespace iMacrosPostingDashboard
                     tblaff.Where.Id.Operator = WhereParameter.Operand.Equal;
                     tblaff.Query.Load();
                     if (KwdsNoSpace == "titulinis")
-                        tbltopics.LongURL2 = tblaff.HomePageLink;
+                    {
+                        tbltopics.LongURL2 = tblaff.HomePageLink.ToString();
+                    }
                     else tbltopics.LongURL2 = tblaff.PreKeywordLinkPart + KwdsNoSpace + tblaff.PostKeywordLinkPart;
                     // System.Threading.Thread.Sleep((1000 * 1 * 4));
-                    tbltopics.Save();
+                    // tbltopics.Save();
                 }
             }
+
+            try
+            {
+                tbltopics.Save();
+            }
+            catch
+            {
+            }
+
             worker.ReportProgress((2 * progressvalue++), "Long URLs done.");
         }
         private void ProduceShortURL()  /// should produce only 1 short URL - rewrite this
@@ -1019,13 +1033,13 @@ namespace iMacrosPostingDashboard
                         poster = PostTheAnswer();
                         if (poster.getSuccess())
                         {
-                            IncrementDBValues();
                             UpdatePostedStatus(1, poster.getReturnURL());
+                            IncrementDBValues();
                             if (CancellationIsPending()) return;
                         }
                         else // if not successfully posted (i.e. no TinyURL in the final page result)
                         {
-                            UpdatePostedStatus(4);
+                            UpdatePostedStatus(4, poster.getReturnURL());
                             IncrementDBValues();
                             if (CancellationIsPending()) return;
                         }
