@@ -7,6 +7,7 @@ using System.Web;
 using System.Net;
 using System.IO;
 using MyGeneration.dOOdads;
+using Newtonsoft.Json;
 
 
 namespace iMacrosPostingDashboard
@@ -28,6 +29,8 @@ namespace iMacrosPostingDashboard
             bool Success = false;
             if (tblaccouts.Email != "")
             {
+                Dictionary<string, string> props = ParseProperties(tblaccouts.Allproperties);
+                // string property;
                 iMacros.App m_app = new iMacros.App();
                 iMacros.Status s = new iMacros.Status();
 
@@ -44,6 +47,11 @@ namespace iMacrosPostingDashboard
                 s = m_app.iimSet("BirthdayYYYYMMDD", tblaccouts.Birthday.ToString("yyyy-MM-dd"));
                 s = m_app.iimSet("BirthdayDDMMYYYY", tblaccouts.Birthday.ToString("dd/MM/yyyy"));
                 s = m_app.iimSet("BirthdayYYYY", tblaccouts.Birthday.ToString("yyyy"));
+                s = m_app.iimSet("BirthdayYY", tblaccouts.Birthday.ToString("yy"));
+                s = m_app.iimSet("BirthdayMM", tblaccouts.Birthday.ToString("MM"));
+                s = m_app.iimSet("BirthdayM", tblaccouts.Birthday.ToString("M"));
+                s = m_app.iimSet("BirthdayMMM", tblaccouts.Birthday.ToString("MMM"));
+                s = m_app.iimSet("BirthdayDD", tblaccouts.Birthday.ToString("dd"));
                 
                 // FRENCH FORUMS:
                 s = m_app.iimSet("StreetFR", tblaccouts.StreetFR);
@@ -56,6 +64,12 @@ namespace iMacrosPostingDashboard
                 s = m_app.iimSet("PostalCodeDE", tblaccouts.PostalCodeDE);
 
                 s = m_app.iimSet("Proxy", proxy);
+
+                foreach (KeyValuePair<string, string> property in props)
+                {
+                    s = m_app.iimSet(property.Key, property.Value);
+                }
+
                 s = m_app.iimPlayCode(CreateMacro, m_timeout);
                 
                 try
@@ -64,7 +78,6 @@ namespace iMacrosPostingDashboard
                 }
                 catch
                 {
-                    // 
                     goto JustContinue;
                 }
 
@@ -84,7 +97,9 @@ namespace iMacrosPostingDashboard
         public string[] CreateAccountWithCaptcha(Emailaccounts tblaccouts, string proxy, string CreateMacro, string topic)
         {
             string[] ErrAndId = new string[2];
-        
+
+            Dictionary<string, string> props = ParseProperties(tblaccouts.Allproperties);
+ 
                 iMacros.App m_app = new iMacros.App();
                 iMacros.Status s = new iMacros.Status();
                 s = m_app.iimOpen("", true, m_timeout);
@@ -108,6 +123,11 @@ namespace iMacrosPostingDashboard
                 s = m_app.iimSet("BirthdayYYYYMMDD", tblaccouts.Birthday.ToString("yyyy-MM-dd"));
                 s = m_app.iimSet("BirthdayDDMMYYYY", tblaccouts.Birthday.ToString("dd/MM/yyyy"));
                 s = m_app.iimSet("BirthdayYYYY", tblaccouts.Birthday.ToString("yyyy"));
+                s = m_app.iimSet("BirthdayYY", tblaccouts.Birthday.ToString("yy"));
+                s = m_app.iimSet("BirthdayMM", tblaccouts.Birthday.ToString("MM"));
+                s = m_app.iimSet("BirthdayMMM", tblaccouts.Birthday.ToString("MMM"));
+                s = m_app.iimSet("BirthdayM", tblaccouts.Birthday.ToString("M"));
+                s = m_app.iimSet("BirthdayDD", tblaccouts.Birthday.ToString("dd"));
 
                 // FRENCH FORUMS:
                 s = m_app.iimSet("StreetFR", tblaccouts.StreetFR);
@@ -120,9 +140,11 @@ namespace iMacrosPostingDashboard
                 s = m_app.iimSet("PostalCodeDE", tblaccouts.PostalCodeDE);
 
                 s = m_app.iimSet("Proxy", proxy);
- 
 
-
+                foreach (KeyValuePair<string, string> property in props)
+                {
+                    s = m_app.iimSet(property.Key, property.Value);
+                }
 
 
                 // Execute macro
@@ -345,7 +367,7 @@ namespace iMacrosPostingDashboard
             s = m_app.iimPlayCode(macro, m_timeout);
             
             s = m_app.iimPlayCode(macrocheckifposted, m_timeout);
-            if (m_app.iimGetExtract(1) != "#EANF#") localposter.setSuccess(true);
+            if (m_app.iimGetExtract(1) != "#EANF#" && m_app.iimGetExtract(1) != "NODATA") localposter.setSuccess(true);
             else localposter.setSuccess(false);
 
             if (m_app.iimGetExtract(2) != "NODATA") localposter.setReturnURL(m_app.iimGetExtract(2));
@@ -544,6 +566,34 @@ namespace iMacrosPostingDashboard
             else return false;
             //
         }
+        private Dictionary<string, string> ParseProperties(string jsonProperties)
+        {
+            Dictionary<string, string> property = new Dictionary<string, string>();
+            if (jsonProperties != "" && jsonProperties != null)
+            {
+                try
+                {
+                    property = JsonConvert.DeserializeObject<Dictionary<string, string>>(jsonProperties);
+                }
+                catch
+                {
+                    property = new Dictionary<string, string>();
+                    property.Add("empty", "empty");
+                }
+            }
+            else
+            {
+                property = new Dictionary<string, string>();
+                property.Add("empty", "empty");
+            }
+            if (property == null)
+            {
+                property = new Dictionary<string, string>();
+                property.Add("empty", "empty");
+            }
+            return property;
+        }
+
     }
 
     #region Workresult CLASS

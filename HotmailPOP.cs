@@ -110,7 +110,7 @@ namespace iMacrosPostingDashboard
                         }
                         catch (Exception)
                         {
-                            Console.WriteLine("Pizdets!");
+                            // Console.WriteLine("Pizdets!");
                             return null;
                         }
                     }

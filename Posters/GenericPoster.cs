@@ -28,6 +28,7 @@ namespace iMacrosPostingDashboard
         public DateTime EndTime = Convert.ToDateTime("10:00:00 PM");
         public int PauseBtwPosts = 30;
         string passwd = "";
+        private bool confirmed = false;
 
         Dictionary<string, string> property = new Dictionary<string, string>();
 
@@ -577,11 +578,25 @@ namespace iMacrosPostingDashboard
         {
             worker.ReportProgress((2 * progressvalue++), "Account created. Pausing " + waitminutes + " min.");
             System.Threading.Thread.Sleep((1000 * 60 * waitminutes));
-        } 
-        private bool ConfirmNewAccount()
+        }
+        private bool ConfirmNewAccount(string passwordlinkstructure = "", int passwordshiftby = 0)
         {
             worker.ReportProgress((2 * progressvalue++), "Confirming account.");
             passwd = tblaccts.Password;
+            string linkstructure;
+            int shiftby;
+
+            // The following checks, if this is a RARE case with a second email that contains the password
+            if (passwordlinkstructure == "")
+            {
+                linkstructure = proj.Linkstructure.ToString();
+                shiftby = proj.ShiftLinkstructureBy;
+            }
+            else
+            {
+                linkstructure = passwordlinkstructure;
+                shiftby = passwordshiftby;
+            }
 
             if (proj.Senderemail == "" || proj.Senderemail == null)
             {
@@ -590,7 +605,7 @@ namespace iMacrosPostingDashboard
             else
             {
 
-                if (stdfunc.ConfirmAccount(tblaccts.Email, ref passwd, proj.Linkstructure, proj.Senderemail, tblproxies.Proxy, proj.ShiftLinkstructureBy))
+                if (stdfunc.ConfirmAccount(tblaccts.Email, ref passwd, linkstructure, proj.Senderemail, tblproxies.Proxy, shiftby))
                 {
                     worker.ReportProgress((2 * progressvalue++), "Account confirmed.");
                     // tblaccts.Password = passwd;
@@ -602,7 +617,7 @@ namespace iMacrosPostingDashboard
                     worker.ReportProgress((2 * progressvalue++), "Unconfirmed. Waiting extra 5 min.");
                     System.Threading.Thread.Sleep((1000 * 60 * 5));
 
-                    if (stdfunc.ConfirmAccount(tblaccts.Email, ref passwd, proj.Linkstructure, proj.Senderemail, tblproxies.Proxy, proj.ShiftLinkstructureBy))
+                    if (stdfunc.ConfirmAccount(tblaccts.Email, ref passwd, linkstructure, proj.Senderemail, tblproxies.Proxy, shiftby))
                     {
                         worker.ReportProgress((2 * progressvalue++), "Account confirmed.");
                         // tblaccts.Password = passwd;
@@ -1017,7 +1032,8 @@ namespace iMacrosPostingDashboard
 
                     if (CancellationIsPending()) return;
 
-                    if (ConfirmNewAccount())
+                    confirmed = ConfirmNewAccount();
+                    if (confirmed)
                     {
                         UpdatePostedStatus(3);
                         ProduceLongURL();
@@ -1029,8 +1045,20 @@ namespace iMacrosPostingDashboard
                         ReplaceURLs();
                         if (CancellationIsPending()) return;
 
+                        if (property.ContainsKey("password") && property.ContainsKey("shiftby"))
+                        {
+                            // if there should be another email with the password
+                            confirmed = ConfirmNewAccount(property["password"], Convert.ToInt32(property["shiftby"]));
+                        }
+                    }
+                    
+                    if (confirmed) // if still confirmed (after (optionally) getting a password from the email 
+                    {
                         poster = new iMacrosPostReturnVars();
                         poster = PostTheAnswer();
+
+                        if (CancellationIsPending()) return;
+                        
                         if (poster.getSuccess())
                         {
                             UpdatePostedStatus(1, poster.getReturnURL());

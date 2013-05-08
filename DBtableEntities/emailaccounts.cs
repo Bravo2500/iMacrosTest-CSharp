@@ -200,6 +200,15 @@ namespace iMacrosPostingDashboard
 				}
 			}
 			
+			public static MySqlParameter Allproperties
+			{
+				get
+				{
+					return new MySqlParameter("?Allproperties", MySqlDbType.Blob);
+
+				}
+			}
+			
 		}
 		#endregion		
 	
@@ -218,6 +227,7 @@ namespace iMacrosPostingDashboard
             public const string PostalCodeAU = "PostalCodeAU";
             public const string CityFR = "CityFR";
             public const string Birthday = "Birthday";
+            public const string Allproperties = "Allproperties";
 
 			static public string ToPropertyName(string columnName)
 			{
@@ -237,6 +247,7 @@ namespace iMacrosPostingDashboard
 					ht[PostalCodeAU] = _emailaccounts.PropertyNames.PostalCodeAU;
 					ht[CityFR] = _emailaccounts.PropertyNames.CityFR;
 					ht[Birthday] = _emailaccounts.PropertyNames.Birthday;
+					ht[Allproperties] = _emailaccounts.PropertyNames.Allproperties;
 
 				}
 				return (string)ht[columnName];
@@ -261,6 +272,7 @@ namespace iMacrosPostingDashboard
             public const string PostalCodeAU = "PostalCodeAU";
             public const string CityFR = "CityFR";
             public const string Birthday = "Birthday";
+            public const string Allproperties = "Allproperties";
 
 			static public string ToColumnName(string propertyName)
 			{
@@ -280,6 +292,7 @@ namespace iMacrosPostingDashboard
 					ht[PostalCodeAU] = _emailaccounts.ColumnNames.PostalCodeAU;
 					ht[CityFR] = _emailaccounts.ColumnNames.CityFR;
 					ht[Birthday] = _emailaccounts.ColumnNames.Birthday;
+					ht[Allproperties] = _emailaccounts.ColumnNames.Allproperties;
 
 				}
 				return (string)ht[propertyName];
@@ -304,6 +317,7 @@ namespace iMacrosPostingDashboard
             public const string PostalCodeAU = "s_PostalCodeAU";
             public const string CityFR = "s_CityFR";
             public const string Birthday = "s_Birthday";
+            public const string Allproperties = "s_Allproperties";
 
 		}
 		#endregion		
@@ -451,6 +465,18 @@ namespace iMacrosPostingDashboard
 			set
 	        {
 				base.SetDateTime(ColumnNames.Birthday, value);
+			}
+		}
+
+		public virtual string Allproperties
+	    {
+			get
+	        {
+				return base.Getstring(ColumnNames.Allproperties);
+			}
+			set
+	        {
+				base.Setstring(ColumnNames.Allproperties, value);
 			}
 		}
 
@@ -639,6 +665,21 @@ namespace iMacrosPostingDashboard
 			}
 		}
 
+		public virtual string s_Allproperties
+	    {
+			get
+	        {
+				return this.IsColumnNull(ColumnNames.Allproperties) ? string.Empty : base.GetstringAsString(ColumnNames.Allproperties);
+			}
+			set
+	        {
+				if(string.Empty == value)
+					this.SetColumnNull(ColumnNames.Allproperties);
+				else
+					this.Allproperties = base.SetstringAsString(ColumnNames.Allproperties, value);
+			}
+		}
+
 
 		#endregion		
 	
@@ -787,6 +828,16 @@ namespace iMacrosPostingDashboard
 					get
 					{
 							WhereParameter where = new WhereParameter(ColumnNames.Birthday, Parameters.Birthday);
+							this._clause._entity.Query.AddWhereParameter(where);
+							return where;
+					}
+				}
+
+				public WhereParameter Allproperties
+				{
+					get
+					{
+							WhereParameter where = new WhereParameter(ColumnNames.Allproperties, Parameters.Allproperties);
 							this._clause._entity.Query.AddWhereParameter(where);
 							return where;
 					}
@@ -941,6 +992,18 @@ namespace iMacrosPostingDashboard
 				}
 			}
 
+			public WhereParameter Allproperties
+		    {
+				get
+		        {
+					if(_Allproperties_W == null)
+	        	    {
+						_Allproperties_W = TearOff.Allproperties;
+					}
+					return _Allproperties_W;
+				}
+			}
+
 			private WhereParameter _Id_W = null;
 			private WhereParameter _Email_W = null;
 			private WhereParameter _Password_W = null;
@@ -953,6 +1016,7 @@ namespace iMacrosPostingDashboard
 			private WhereParameter _PostalCodeAU_W = null;
 			private WhereParameter _CityFR_W = null;
 			private WhereParameter _Birthday_W = null;
+			private WhereParameter _Allproperties_W = null;
 
 			public void WhereClauseReset()
 			{
@@ -968,6 +1032,7 @@ namespace iMacrosPostingDashboard
 				_PostalCodeAU_W = null;
 				_CityFR_W = null;
 				_Birthday_W = null;
+				_Allproperties_W = null;
 
 				this._entity.Query.FlushWhereParameters();
 
@@ -1144,6 +1209,16 @@ namespace iMacrosPostingDashboard
 					}
 				}
 
+				public AggregateParameter Allproperties
+				{
+					get
+					{
+							AggregateParameter aggregate = new AggregateParameter(ColumnNames.Allproperties, Parameters.Allproperties);
+							this._clause._entity.Query.AddAggregateParameter(aggregate);
+							return aggregate;
+					}
+				}
+
 
 				private AggregateClause _clause;
 			}
@@ -1293,6 +1368,18 @@ namespace iMacrosPostingDashboard
 				}
 			}
 
+			public AggregateParameter Allproperties
+		    {
+				get
+		        {
+					if(_Allproperties_W == null)
+	        	    {
+						_Allproperties_W = TearOff.Allproperties;
+					}
+					return _Allproperties_W;
+				}
+			}
+
 			private AggregateParameter _Id_W = null;
 			private AggregateParameter _Email_W = null;
 			private AggregateParameter _Password_W = null;
@@ -1305,6 +1392,7 @@ namespace iMacrosPostingDashboard
 			private AggregateParameter _PostalCodeAU_W = null;
 			private AggregateParameter _CityFR_W = null;
 			private AggregateParameter _Birthday_W = null;
+			private AggregateParameter _Allproperties_W = null;
 
 			public void AggregateClauseReset()
 			{
@@ -1320,6 +1408,7 @@ namespace iMacrosPostingDashboard
 				_PostalCodeAU_W = null;
 				_CityFR_W = null;
 				_Birthday_W = null;
+				_Allproperties_W = null;
 
 				this._entity.Query.FlushAggregateParameters();
 
@@ -1365,7 +1454,8 @@ namespace iMacrosPostingDashboard
 				`PostalCodeDE`,
 				`PostalCodeAU`,
 				`CityFR`,
-				`Birthday`
+				`Birthday`,
+				`Allproperties`
 			)
 			VALUES
 			(
@@ -1379,7 +1469,8 @@ namespace iMacrosPostingDashboard
 				?PostalCodeDE,
 				?PostalCodeAU,
 				?CityFR,
-				?Birthday
+				?Birthday,
+				?Allproperties
 			)";
 
 			CreateParameters(cmd);
@@ -1402,7 +1493,8 @@ namespace iMacrosPostingDashboard
 				`PostalCodeDE`=?PostalCodeDE,
 				`PostalCodeAU`=?PostalCodeAU,
 				`CityFR`=?CityFR,
-				`Birthday`=?Birthday
+				`Birthday`=?Birthday,
+				`Allproperties`=?Allproperties
 			WHERE
 				`Id`=?Id";
 
@@ -1479,6 +1571,10 @@ namespace iMacrosPostingDashboard
 
 			p = cmd.Parameters.Add(Parameters.Birthday);
 			p.SourceColumn = ColumnNames.Birthday;
+			p.SourceVersion = DataRowVersion.Current;
+
+			p = cmd.Parameters.Add(Parameters.Allproperties);
+			p.SourceColumn = ColumnNames.Allproperties;
 			p.SourceVersion = DataRowVersion.Current;
 
 
