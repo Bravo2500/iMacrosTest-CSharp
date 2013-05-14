@@ -94,7 +94,7 @@ namespace iMacrosPostingDashboard
 
             return Success;
         }
-        public string[] CreateAccountWithCaptcha(Emailaccounts tblaccouts, string proxy, string CreateMacro, string topic)
+        public string[] CreateAccountWithCaptcha(Emailaccounts tblaccouts, string proxy, string CreateMacro)
         {
             string[] ErrAndId = new string[2];
 
@@ -112,7 +112,7 @@ namespace iMacrosPostingDashboard
                 s = m_app.iimSet("Topic", topic);
                 */
 
-                s = m_app.iimSet("Topic", topic);
+                // s = m_app.iimSet("Topic", topic);
 
                 s = m_app.iimSet("Username", tblaccouts.Username);
                 s = m_app.iimSet("Email", tblaccouts.Email);
@@ -203,7 +203,7 @@ namespace iMacrosPostingDashboard
             }
 
         }
-        public string PostQuestionAskCom(string Email, string Password, string Topic, string Proxy, string Macro)
+        public string PostQuestion(string username, string Email, string Password, string Topic, string Proxy, string Macro)
         {
             // GET iMacros code
             // SET Variables

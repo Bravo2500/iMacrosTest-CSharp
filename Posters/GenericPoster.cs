@@ -34,6 +34,9 @@ namespace iMacrosPostingDashboard
 
         iMacrosPostReturnVars poster;
 
+        private bool postQnA = false;
+        private bool questionposted = true;
+
         private BackgroundWorker worker;
         private Projects proj;
         private Emailaccounts tblaccts;
@@ -93,12 +96,14 @@ namespace iMacrosPostingDashboard
             ProjectName = projname;
             AnswerTemplate = AnswerTmpl;
             
+
+
             //  worker.ReportProgress((2 * 1 * 10), "Testing...");
 
             error = e;
             e = error;
 
-            SelectProject();
+            SelectProject(ref proj, ProjectName);
             ParseProperties();
 
             if (property.ContainsKey("projecttimezone"))
@@ -217,16 +222,16 @@ namespace iMacrosPostingDashboard
                 return true;
             else return false;
         }
-        private void SelectProject()
+        private void SelectProject(ref Projects proj_local, string ProjectName_local)
         {
             worker.ReportProgress((2 * progressvalue++), "Initialized. Selecting the project. ");
             int counter1 = 0;
             SelectProjectAgain:
-                proj.Where.ProjectName.Value = ProjectName;
-                proj.Where.ProjectName.Operator = WhereParameter.Operand.Equal;
+                proj_local.Where.ProjectName.Value = ProjectName_local;
+                proj_local.Where.ProjectName.Operator = WhereParameter.Operand.Equal;
                 try
                 {
-                    proj.Query.Load();
+                    proj_local.Query.Load();
                 }
                 catch
                 {
@@ -370,18 +375,20 @@ namespace iMacrosPostingDashboard
                 SelectNextTopic();
             }
         }
-        private void SelectNextEmail()
+        private int SelectNextEmail(ref Emailaccounts tblaccts_local, int LastAccountUsed_local)
         {
             worker.ReportProgress((2 * progressvalue++), "Selecting email account.");
             int counter3 = 0;
 
             int MaxEmails = 0;
-            
-            tblaccts.Aggregate.Id.Function = AggregateParameter.Func.Max;
-            tblaccts.Aggregate.Id.Alias = "Max emails";
+            int nextemail_local = LastAccountUsed_local + 1; // Filter the Email Account
 
-            tblaccts.Query.Load();
-            DataView dv = tblaccts.DefaultView;
+            tblaccts_local.Where.WhereClauseReset();
+            tblaccts_local.Aggregate.Id.Function = AggregateParameter.Func.Max;
+            tblaccts_local.Aggregate.Id.Alias = "Max emails";
+
+            tblaccts_local.Query.Load();
+            DataView dv = tblaccts_local.DefaultView;
             // tbltopics.Query.ReturnReader();
 
             foreach (DataRowView rowView in dv)
@@ -391,21 +398,19 @@ namespace iMacrosPostingDashboard
             }
 
             SelectEmailAgain:
-                if (nexttopic > MaxEmails)
+                if (nextemail_local > MaxEmails)
                 {
                     worker.ReportProgress((2 * progressvalue), "Out of email accounts.");
                     error.Cancel = true;
-                    return;
+                    return 0;
                 }
 
-                tblaccts.Aggregate.AggregateClauseReset();
-                nextemail = proj.LastAccountUsed + 1; // Filter the Email Account
-                tblaccts.Where.Id.Value = nextemail;
-                tblaccts.Where.Id.Operator = WhereParameter.Operand.Equal;
-            
+                tblaccts_local.Aggregate.AggregateClauseReset();
+                tblaccts_local.Where.Id.Value = nextemail_local;
+                tblaccts_local.Where.Id.Operator = WhereParameter.Operand.Equal;
                 try
                 {
-                    if (!tblaccts.Query.Load())
+                    if (!tblaccts_local.Query.Load())
                     {
                         nexttopic++;
                         goto SelectEmailAgain;
@@ -415,53 +420,57 @@ namespace iMacrosPostingDashboard
                 catch
                 {
                     counter3++;
-                    if (counter3 >= 4) return;
+                    if (counter3 >= 4)
+                    {
+                        error.Cancel = true;
+                        return 0;
+                    }
                     goto SelectEmailAgain;
                 }
                 worker.ReportProgress((2 * progressvalue++), "Email selected. ");
-
+                return nextemail_local;
             // string CurrentEmail = tblaccts.Email;
         }
-        private void SelectNextProxy()
+        private int SelectNextProxy(ref Proxies tblproxies_local, int LastProxyUsed_local)
         {
             worker.ReportProgress((2 * progressvalue++), "Selecting proxy. ");
 
             int counter4 = 0;
             SelectProxyAgain:
 
-                nextproxy = proj.LastProxyUsed + 1;
+                int nextproxy_local = LastProxyUsed_local + 1;
                 try
                 {
-                    tblproxies.LoadAll();
+                    tblproxies_local.LoadAll();
                 }
                 catch
                 {
                     counter4++;
-                    if (counter4 >= 4) return;
+                    if (counter4 >= 4) return 0;
                     goto SelectProxyAgain;
                 }
-            
-                proxycount = tblproxies.RowCount;
-                if (nextproxy > proxycount)
+                
+                proxycount = tblproxies_local.RowCount;
+                if (nextproxy_local > proxycount)
                 {
-                    nextproxy = 1;
+                    nextproxy_local = 1;
                 }
 
-                tblproxies.Where.Id.Value = nextproxy;
-                tblproxies.Where.Id.Operator = WhereParameter.Operand.Equal;
+                tblproxies_local.Where.Id.Value = nextproxy_local;
+                tblproxies_local.Where.Id.Operator = WhereParameter.Operand.Equal;
 
                 try
                 {
-                    tblproxies.Query.Load();
+                    tblproxies_local.Query.Load();
                 }
                 catch
                 {
                     counter4++;
-                    if (counter4 >= 4) return;
+                    if (counter4 >= 4) return 0;
                     goto SelectProxyAgain;
                 }
                 worker.ReportProgress((2 * progressvalue++), "Proxy selected.");
-
+                return nextproxy_local;
         }
         private void CheckIfProxyIsWorkingSelectNextIfNotWorking()
         {
@@ -469,7 +478,8 @@ namespace iMacrosPostingDashboard
             worker.ReportProgress((2 * progressvalue++), "Checking if proxy is alive.");
             Httpcalls httpcall = new Httpcalls();
 
-            if (proxycount == 0) SelectNextProxy();
+            if (proxycount == 0)
+                nextproxy = SelectNextProxy(ref tblproxies, proj.LastProxyUsed);
             if (proxycount == 0)
             {
                 worker.ReportProgress((2 * progressvalue++), "Failed selecting proxies.");
@@ -518,11 +528,11 @@ namespace iMacrosPostingDashboard
             worker.ReportProgress((2 * progressvalue++), "Proxy working well.");
 
         } // end  CHECK IF PROXY IS WORKING, SELECT NEXT IF NOT WORKING
-        private bool CreateNewAccount()
+        private bool CreateNewAccount(Emailaccounts tblaccts_local, string proxy_local, string createcode_local)
         {
             worker.ReportProgress((2 * progressvalue++), "Creating a new account.");
 
-
+            passwd = tblaccts_local.Password; // GLOBAL variable to track the changes in password
             int hascaptcha = 0;
             if (property.ContainsKey("captcha"))
                 try
@@ -531,15 +541,15 @@ namespace iMacrosPostingDashboard
                 }
                 catch { }
 
-            if (proj.ProjectName == "AskCom" || hascaptcha == 1)
+            if (hascaptcha == 1)
             {
-                CreateNewAccountWithCaptcha();
+                CreateNewAccountWithCaptcha(tblaccts_local, proxy_local, createcode_local);
                 return true;
             }
             else
             {
-                tblaccts_copy = tblaccts;
-                if (stdfunc.CreateAccount(tblaccts_copy, tblproxies.Proxy, proj.ImacrosCreateAccCode))
+                tblaccts_copy = tblaccts_local;
+                if (stdfunc.CreateAccount(tblaccts_copy, proxy_local, createcode_local))
                 {
                     worker.ReportProgress((2 * progressvalue++), "Account created.");
                     return true;
@@ -547,10 +557,10 @@ namespace iMacrosPostingDashboard
                 else return false;
             }
         }
-        private void CreateNewAccountWithCaptcha()
+        private void CreateNewAccountWithCaptcha(Emailaccounts tblaccts_local, string proxy_local, string createcode_local)
         {
-            tblaccts_copy = tblaccts;
-            string[] ErrorAndId = stdfunc.CreateAccountWithCaptcha(tblaccts_copy, tblproxies.Proxy, proj.ImacrosCreateAccCode, tbltopics.Topic);
+            tblaccts_copy = tblaccts_local;
+            string[] ErrorAndId = stdfunc.CreateAccountWithCaptcha(tblaccts_copy, proxy_local, createcode_local);
             //string[] ErrorAndId = { "", "" };
             string ErrorMsg = "";
             ErrorMsg = ErrorAndId[0];
@@ -562,7 +572,7 @@ namespace iMacrosPostingDashboard
                 // Report bad CAPTCHA
                 if (CancellationIsPending()) return;
                 if (CaptchaId != "NODATA") stdfunc.ReportBadCaptcha(CaptchaId);
-                ErrorAndId = stdfunc.CreateAccountWithCaptcha(tblaccts_copy, tblproxies.Proxy, proj.ImacrosCreateAccCode, tbltopics.Topic);
+                ErrorAndId = stdfunc.CreateAccountWithCaptcha(tblaccts_copy, proxy_local, createcode_local);
                 ErrorMsg = ErrorAndId[0];
                 CaptchaId = ErrorAndId[1];
                 br++;
@@ -627,6 +637,16 @@ namespace iMacrosPostingDashboard
                     else return false;
                 }
             }
+        }
+        private bool PostTheQuestion(ref Topicsgeneric tbltopics_local, Emailaccounts tblaccts_local, string passwd_local, string proxy_local, string iCode_local)
+        {
+            worker.ReportProgress((2 * progressvalue++), "Posting a question.");
+            tbltopics_local.Link = stdfunc.PostQuestion(tblaccts_local.Username, tblaccts_local.Email, passwd_local, tbltopics_local.Topic, proxy_local, iCode_local);
+            tbltopics_local.Save();
+            string returnvar = tbltopics_local.Link;
+            if (returnvar != "" && returnvar != null && returnvar != "#EANF#" && returnvar != "NODATA")
+                return true;
+            else return false;
         }
         private void ProduceLongURL() // SHOULD produce only one long URL, so some parameters will be needed (by ref)
         {
@@ -887,7 +907,7 @@ namespace iMacrosPostingDashboard
             worker.ReportProgress((2 * progressvalue++), "Posting an answer.");
             return stdfunc.LoginAndPost(tblaccts.Username, tblaccts.Email, passwd, tblproxies.Proxy, tbltopics.Link, GeneratedResponse, proj.ImacrosLoginPost);
         }
-        private void IncrementDBValues()
+        private void IncrementDBValues(ref Projects proj_local, Dictionary<string, int> UpdateArray, string iMacrosCreateAccountCode_local, string iMacrosLoginAndPostCode_local)
         {
             worker.ReportProgress((2 * progressvalue++), "Incrementing DB values.");
             int counter7 = 0;
@@ -895,17 +915,18 @@ namespace iMacrosPostingDashboard
             
                 if (iMacrosCreateAccountCode != "" && iMacrosLoginAndPostCode != "")
                 {
-                    proj.ImacrosCreateAccCode = iMacrosCreateAccountCode;
-                    proj.ImacrosLoginPost = iMacrosLoginAndPostCode;
+                    proj_local.ImacrosCreateAccCode = iMacrosCreateAccountCode_local;
+                    proj_local.ImacrosLoginPost = iMacrosLoginAndPostCode_local;
                 }
-
-                proj.LastAccountUsed = nextemail;
-                proj.LastProxyUsed = nextproxy;
-                proj.LastTemplateUsed = nexttmpl;
-                proj.LastTopicUsed = nexttopic;
+                
+                if (UpdateArray.ContainsKey("nextemail")) proj_local.LastAccountUsed = UpdateArray["nextemail"];
+                if (UpdateArray.ContainsKey("nextproxy")) proj_local.LastProxyUsed = UpdateArray["nextproxy"];
+                if (UpdateArray.ContainsKey("nexttmpl")) proj_local.LastTemplateUsed = UpdateArray["nexttmpl"];
+                if (UpdateArray.ContainsKey("nexttopic")) proj_local.LastTopicUsed = UpdateArray["nexttopic"];
+                
                 try
                 {
-                    proj.Save();
+                    proj_local.Save();
                 }
                 catch
                 {
@@ -1009,7 +1030,7 @@ namespace iMacrosPostingDashboard
                         if (CancellationIsPending()) return;                
                 SleepIfNighttime();
                         if (CancellationIsPending()) return;
-                SelectProject();
+                SelectProject(ref proj, ProjectName);
                     if (CancellationIsPending()) return;
                 SaveMacroCodes();
                         if (CancellationIsPending()) return;
@@ -1018,13 +1039,14 @@ namespace iMacrosPostingDashboard
                         if (CancellationIsPending()) return;
                 WaitForKeywordsOrShutTheProcessDown();
                         if (CancellationIsPending()) return;
-                SelectNextEmail();
+                nextemail = SelectNextEmail(ref tblaccts,proj.LastAccountUsed);
                         if (CancellationIsPending()) return;
-                SelectNextProxy();
+                nextproxy = SelectNextProxy(ref tblproxies, proj.LastProxyUsed);
                         if (CancellationIsPending()) return;
                 CheckIfProxyIsWorkingSelectNextIfNotWorking();
                         if (CancellationIsPending()) return;
-                if (CreateNewAccount())
+
+                if (CreateNewAccount(tblaccts, tblproxies.Proxy, proj.ImacrosCreateAccCode))
                 {
                     if (CancellationIsPending()) return;
 
@@ -1032,8 +1054,49 @@ namespace iMacrosPostingDashboard
 
                     if (CancellationIsPending()) return;
 
+                    #region AskCom situation where we need to post the question first
+                    if (property.ContainsKey("postQnA"))
+                    {
+                        try
+                        {
+                            int pQnA = Convert.ToInt32(property["postQnA"]);
+                            if (pQnA == 1) postQnA = true;
+                        }
+                        catch { }
+                    }
+
+                    if (postQnA)
+                    {
+                        questionposted = PostTheQuestion(ref tbltopics, tblaccts, passwd, tblproxies.Proxy, proj.ImacrosCodeGeneric);
+                        
+                        if (questionposted)
+                        {
+                            /*
+                             * increment Projects table (account, proxy)
+                             * select new account from AccountsTable
+                             * select new proxy 
+                             */
+                            Dictionary<string, int> temp_dict = new Dictionary<string, int>();
+                            temp_dict.Add("nextemail", nextemail);
+                            temp_dict.Add("nextproxy", nextproxy);
+                            IncrementDBValues(ref proj, temp_dict, iMacrosCreateAccountCode, iMacrosLoginAndPostCode);
+                            temp_dict = null;
+                            SelectProject(ref proj, ProjectName);
+                            if (CancellationIsPending()) return;
+                            nextemail = SelectNextEmail(ref tblaccts, proj.LastAccountUsed);
+                            if (CancellationIsPending()) return;
+                            nextproxy = SelectNextProxy(ref tblproxies, proj.LastProxyUsed);
+                            if (CancellationIsPending()) return;
+                            CheckIfProxyIsWorkingSelectNextIfNotWorking();
+                            if (CancellationIsPending()) return;
+                            if (!CreateNewAccount(tblaccts, tblproxies.Proxy, proj.ImacrosCreateAccCode))
+                                questionposted = false;
+                        }
+                    }
+                    #endregion
+
                     confirmed = ConfirmNewAccount();
-                    if (confirmed)
+                    if (confirmed && questionposted)
                     {
                         UpdatePostedStatus(3);
                         ProduceLongURL();
@@ -1051,8 +1114,8 @@ namespace iMacrosPostingDashboard
                             confirmed = ConfirmNewAccount(property["password"], Convert.ToInt32(property["shiftby"]));
                         }
                     }
-                    
-                    if (confirmed) // if still confirmed (after (optionally) getting a password from the email 
+
+                    if (confirmed && questionposted) // if still confirmed (after (optionally) getting a password from the email 
                     {
                         poster = new iMacrosPostReturnVars();
                         poster = PostTheAnswer();
@@ -1062,19 +1125,37 @@ namespace iMacrosPostingDashboard
                         if (poster.getSuccess())
                         {
                             UpdatePostedStatus(1, poster.getReturnURL());
-                            IncrementDBValues();
+                            Dictionary<string,int> temp_dict = new Dictionary<string,int>();
+                            temp_dict.Add("nextemail", nextemail);
+                            temp_dict.Add("nextproxy", nextproxy);
+                            temp_dict.Add("nexttmpl", nexttmpl);
+                            temp_dict.Add("nexttopic", nexttopic);
+                            IncrementDBValues(ref proj, temp_dict, iMacrosCreateAccountCode, iMacrosLoginAndPostCode);
+                            temp_dict = null;
                             if (CancellationIsPending()) return;
                         }
                         else // if not successfully posted (i.e. no TinyURL in the final page result)
                         {
                             UpdatePostedStatus(4, poster.getReturnURL());
-                            IncrementDBValues();
+                            Dictionary<string, int> temp_dict = new Dictionary<string, int>();
+                            temp_dict.Add("nextemail", nextemail);
+                            temp_dict.Add("nextproxy", nextproxy);
+                            temp_dict.Add("nexttmpl", nexttmpl);
+                            temp_dict.Add("nexttopic", nexttopic);
+                            IncrementDBValues(ref proj, temp_dict, iMacrosCreateAccountCode, iMacrosLoginAndPostCode);
+                            temp_dict = null;
                             if (CancellationIsPending()) return;
                         }
                     }
                     else  // if account not confirmed, switch to a new account and proxy:
                     {
-                        IncrementDBValues();
+                        Dictionary<string, int> temp_dict = new Dictionary<string, int>();
+                        temp_dict.Add("nextemail", nextemail);
+                        temp_dict.Add("nextproxy", nextproxy);
+                        temp_dict.Add("nexttmpl", nexttmpl);
+                        temp_dict.Add("nexttopic", nexttopic);
+                        IncrementDBValues(ref proj, temp_dict, iMacrosCreateAccountCode, iMacrosLoginAndPostCode);
+                        temp_dict = null;
                         if (CancellationIsPending()) return;
                     }
                     
