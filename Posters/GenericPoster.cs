@@ -662,6 +662,8 @@ namespace iMacrosPostingDashboard
                 error.Cancel = true;
             }
 
+            string TodaysDate = DateTime.Now.ToString("yyyy-M-d");
+            
             if (tbltopics.LongURL1 == "" || tbltopics.LongURL1 == null)
             {
                 // PRODUCE FIRST LongURL
@@ -676,15 +678,26 @@ namespace iMacrosPostingDashboard
                     if (KwdsNoSpace == "titulinis")
                     {
                         tbltopics.LongURL1 = tblaff.HomePageLink.ToString();
+                        if (property.ContainsKey("NewURL"))
+                        {
+                            tbltopics.LongURL1 = "http://partner.jukoshop.com/?source=" + proj.ProjectName.ToLower() + "&date=" + TodaysDate;
+                        }
                     }
-                    else tbltopics.LongURL1 = tblaff.PreKeywordLinkPart + KwdsNoSpace + tblaff.PostKeywordLinkPart;
+                    else
+                    {
+                        tbltopics.LongURL1 = tblaff.PreKeywordLinkPart + KwdsNoSpace + tblaff.PostKeywordLinkPart;
+                        if (property.ContainsKey("NewURL"))
+                        {
+                            tbltopics.LongURL1 = "http://partner.jukoshop.com/?source=" + proj.ProjectName.ToLower() + "&date=" + TodaysDate + "&keyword=" + KwdsNoSpace;
+                        }
+                    }
                     try
                     {
                            // tbltopics.Save();
                     }
                     catch (DBConcurrencyException ex)
                     {
-                        #region
+                        #region Concurrency violations
                         string customErrorMessage;
                         customErrorMessage = "Concurrency violation\n";
                         customErrorMessage += ex.Row[0].ToString() + "\n";
@@ -725,6 +738,7 @@ namespace iMacrosPostingDashboard
             {
             }
 
+
             worker.ReportProgress((2 * progressvalue++), "Long URLs done.");
         }
         private void ProduceShortURL()  /// should produce only 1 short URL - rewrite this
@@ -738,7 +752,7 @@ namespace iMacrosPostingDashboard
                 
                 while ((tbltopics.ShortURL1 == "#EANF#" || tbltopics.ShortURL1 == "" || tbltopics.ShortURL1 == "NODATA" || tbltopics.ShortURL1 == null) && (i <= 4)) // Let's not do conversion if the ShortURL1 is None.
                     {
-                        tbltopics.ShortURL1 = TinyClass.ImacrosTinyurlConvert(tbltopics.LongURL1);
+                        tbltopics.ShortURL1 = TinyClass.EURLConvert(tbltopics.LongURL1);
                         tbltopics.Save();
                         i++;
                     }
@@ -750,7 +764,7 @@ namespace iMacrosPostingDashboard
                 int j = 1;
                 while ((tbltopics.ShortURL2 == "#EANF#" || tbltopics.ShortURL2 == "" || tbltopics.ShortURL2 == "NODATA" || tbltopics.ShortURL2 == null) && (j <= 4)) // Let's not do conversion if the ShortURL2 is None.
                     {
-                        tbltopics.ShortURL2 = TinyClass.ImacrosTinyurlConvert(tbltopics.LongURL2);
+                        tbltopics.ShortURL2 = TinyClass.EURLConvert(tbltopics.LongURL2);
                         tbltopics.Save();
                         j++;
                     }

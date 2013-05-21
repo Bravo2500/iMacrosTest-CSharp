@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
+using System.Web;
 
 namespace iMacrosPostingDashboard
 {
@@ -73,6 +75,14 @@ namespace iMacrosPostingDashboard
             // Get variable from macro and return
 
 
+            return shorturl;
+        }
+        public string EURLConvert(string longurl)
+        {
+            string shorturl;
+            WebClient wc = new WebClient();
+            longurl = HttpUtility.UrlEncode(longurl);
+            shorturl = wc.DownloadString("http://eurl.me/shorten.php?longurl=" + longurl);
             return shorturl;
         }
 

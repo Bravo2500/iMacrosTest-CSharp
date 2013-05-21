@@ -8,6 +8,7 @@ using System.Net;
 using System.IO;
 using MyGeneration.dOOdads;
 using Newtonsoft.Json;
+using System.Text.RegularExpressions;
 
 
 namespace iMacrosPostingDashboard
@@ -286,7 +287,7 @@ namespace iMacrosPostingDashboard
                         macro = macro + "URL GOTO=about:blank" + "\r\n";
                         macro = macro + "WAIT SECONDS=3" + "\r\n";
                         macro = macro + "PROXY ADDRESS={{Proxy}}" + "\r\n";
-                        // macro = macro + "ONLOGIN USER=Jukas PASSWORD=7qUzTq7V" + "\r\n";
+                        macro = macro + "ONLOGIN USER=Jukas PASSWORD=7qUzTq7V" + "\r\n";
                         macro = macro + "URL GOTO={{ConfLink}}" + "\r\n";
                         macro = macro + "WAIT SECONDS=3" + "\r\n";
 
@@ -338,7 +339,7 @@ namespace iMacrosPostingDashboard
         {
             string macrocode = "";
             macrocode = "WAIT SECONDS=1" + Environment.NewLine;
-            macrocode += "TAG POS=1 TYPE=A ATTR=HREF:http://tinyurl.com/* EXTRACT=TXT" + Environment.NewLine;
+            macrocode += "TAG POS=1 TYPE=A ATTR=HREF:{{Shortener}}* EXTRACT=TXT" + Environment.NewLine;
             macrocode += "WAIT SECONDS=1" + Environment.NewLine;
             macrocode += "ADD !EXTRACT {{!URLCURRENT}}" + Environment.NewLine;
             macrocode += "WAIT SECONDS=1" + Environment.NewLine;
@@ -365,7 +366,20 @@ namespace iMacrosPostingDashboard
 
             // Execute macro
             s = m_app.iimPlayCode(macro, m_timeout);
-            
+
+            string pattern = @"http://.+/";
+            Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+            MatchCollection matches = rgx.Matches(GeneratedResponse);
+            if (matches.Count > 0)
+            {
+                foreach (Match match in matches)
+                    s = m_app.iimSet("Shortener", match.Value);
+            }
+            else
+            {
+                s = m_app.iimSet("Shortener", "http://eurl.me/");
+            }
+
             s = m_app.iimPlayCode(macrocheckifposted, m_timeout);
             if (m_app.iimGetExtract(1) != "#EANF#" && m_app.iimGetExtract(1) != "NODATA") localposter.setSuccess(true);
             else localposter.setSuccess(false);
