@@ -382,6 +382,25 @@ namespace iMacrosPostingDashboard
 
             int MaxEmails = 0;
             int nextemail_local = LastAccountUsed_local + 1; // Filter the Email Account
+            int firstemail;
+            int lastemail;
+            
+            if (property.ContainsKey("firstemail") && property.ContainsKey("lastemail"))
+            {
+                try
+                {
+                    firstemail = Convert.ToInt32(property["firstemail"]);
+                    lastemail = Convert.ToInt32(property["lastemail"]);
+                    if (nextemail_local < firstemail)
+                        nextemail_local = firstemail;
+                    if (nextemail_local > lastemail)
+                        nextemail_local = firstemail;
+                }
+                catch
+                {
+                }
+            }
+            
 
             tblaccts_local.Where.WhereClauseReset();
             tblaccts_local.Aggregate.Id.Function = AggregateParameter.Func.Max;

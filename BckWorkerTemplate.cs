@@ -57,7 +57,6 @@ namespace iMacrosPostingDashboard
             // e.g.  "MumsNetUK", "topicsmumsnet", "AmazonUK-one-link"
         }
 
-
         private void EmailProjStatus()
         {
             // READ FROM CONFIG FILE 
@@ -96,7 +95,6 @@ namespace iMacrosPostingDashboard
                 smtp.Send(message);
             }
         }
-
         public void bwStartDataGrid(Object sender, EventArgs e)
         {
             // btnStart.Enabled = false;
