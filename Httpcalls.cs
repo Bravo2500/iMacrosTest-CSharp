@@ -47,9 +47,14 @@ namespace iMacrosPostingDashboard
             //string Port = parts[1];
             try
             {
+
+                WebProxy p = new WebProxy(proxy, true);
+                p.Credentials = new NetworkCredential("Jukas", "7qUzTq7V");
+                WebRequest.DefaultWebProxy = p;
+                
                 WebClient wc = new WebClient();
-                wc.Proxy = new WebProxy(proxy);
-                wc.DownloadString("http://google.com/");
+                wc.Proxy = p;
+                string downloadString = wc.DownloadString("http://google.com/");
                 return true;
             }
             catch

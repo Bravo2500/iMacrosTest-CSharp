@@ -102,7 +102,8 @@ namespace iMacrosPostingDashboard
 
             error = e;
             e = error;
-
+            // error.Cancel = true;
+            
             SelectProject(ref proj, ProjectName);
             ParseProperties();
 
@@ -134,6 +135,8 @@ namespace iMacrosPostingDashboard
                 error.Cancel = true;
                 return true;
             }
+            else if (error.Cancel == true)
+                return true;
             else return false;
         }
         private void EmailKwdStatus(bool Anykwdsleft)
@@ -727,6 +730,11 @@ namespace iMacrosPostingDashboard
                         #endregion
                     }   
                 }
+
+                if (tbltopics.LongURL1 == "" || tbltopics.LongURL1 == null)
+                {
+                    error.Cancel = true;
+                }
             }
 
             if (tbltopics.LongURL2 == "" || tbltopics.LongURL2 == null)
@@ -789,7 +797,18 @@ namespace iMacrosPostingDashboard
                     }
                 
             }
-            worker.ReportProgress((2 * progressvalue++), "Short URLs done.");
+
+            if (tbltopics.ShortURL1 != "" && tbltopics.ShortURL1 != null)
+            {
+                worker.ReportProgress((2 * progressvalue++), "Short URLs done.");
+                return;
+            }
+            else
+            {
+                worker.ReportProgress((2 * progressvalue++), "Short URLs not produced.");
+                error.Cancel = true;
+                return;
+            }
         }
         private void FilterOutTheNextAnswerTemplate() ///  1 URL ?  2 URLs??  Need to pass these as parameters
         {
