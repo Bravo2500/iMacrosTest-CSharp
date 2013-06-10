@@ -204,7 +204,7 @@ namespace iMacrosPostingDashboard
 			{
 				get
 				{
-					return new MySqlParameter("?Response", MySqlDbType.Blob);
+					return new MySqlParameter("?Response", MySqlDbType.Text);
 
 				}
 			}

@@ -7,7 +7,7 @@ using System.IO;
 //Add MySql Library
 using MySql.Data.MySqlClient;
 
-namespace iMacrosPostingDashboard
+namespace iMacrosPostingDashboard1
 {
     class DBConnect
     {
@@ -26,6 +26,7 @@ namespace iMacrosPostingDashboard
         //Initialize values
         private void Initialize()
         {
+            /*
             server = "94.249.189.26";
             database = "PostingDB";
             uid = "root";
@@ -34,6 +35,8 @@ namespace iMacrosPostingDashboard
             connectionString = "SERVER=" + server + ";" + "DATABASE=" + database + ";" + "UID=" + uid + ";" + "PASSWORD=" + password + ";";
 
             connection = new MySqlConnection(connectionString);
+             * 
+             */
         }
 
 

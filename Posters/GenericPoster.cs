@@ -853,7 +853,10 @@ namespace iMacrosPostingDashboard
                     goto SelectAnswersAgain;
                 }
 
-                tbltopics.Response = tblresp.Response;
+                string response_ref = tblresp.Response.ToString();
+                // tbltopics.Response = response_ref;
+                // tbltopics.Response = "éêágó"; \xc3\xaa
+                tbltopics.Response = response_ref;
                 try
                 {
                     tbltopics.Save();
@@ -1003,7 +1006,7 @@ namespace iMacrosPostingDashboard
                 {
                     tbltopics.Save();
                 }
-                catch
+                catch (Exception ex)
                 {
                     counter7++;
                     if (counter7 >= 4)
