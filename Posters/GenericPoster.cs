@@ -772,6 +772,13 @@ namespace iMacrosPostingDashboard
         {
             worker.ReportProgress((2 * progressvalue++), "Producing Short URLs.");
             TinyURL TinyClass = new TinyURL();
+            string shortURLbase;
+
+            if (property.ContainsKey("shortURLbase"))
+                shortURLbase = property["shortURLbase"];
+            else
+                shortURLbase = "eurl.me";
+
 
             if ((tbltopics.LongURL1 != "") && (tbltopics.LongURL1 != null))
             {
@@ -779,7 +786,7 @@ namespace iMacrosPostingDashboard
                 
                 while ((tbltopics.ShortURL1 == "#EANF#" || tbltopics.ShortURL1 == "" || tbltopics.ShortURL1 == "NODATA" || tbltopics.ShortURL1 == null) && (i <= 4)) // Let's not do conversion if the ShortURL1 is None.
                     {
-                        tbltopics.ShortURL1 = TinyClass.EURLConvert(tbltopics.LongURL1);
+                        tbltopics.ShortURL1 = TinyClass.URLShorten(tbltopics.LongURL1, shortURLbase);
                         tbltopics.Save();
                         i++;
                     }
@@ -791,7 +798,7 @@ namespace iMacrosPostingDashboard
                 int j = 1;
                 while ((tbltopics.ShortURL2 == "#EANF#" || tbltopics.ShortURL2 == "" || tbltopics.ShortURL2 == "NODATA" || tbltopics.ShortURL2 == null) && (j <= 4)) // Let's not do conversion if the ShortURL2 is None.
                     {
-                        tbltopics.ShortURL2 = TinyClass.EURLConvert(tbltopics.LongURL2);
+                        tbltopics.ShortURL2 = TinyClass.URLShorten(tbltopics.LongURL2, shortURLbase);
                         tbltopics.Save();
                         j++;
                     }

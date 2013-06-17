@@ -85,6 +85,14 @@ namespace iMacrosPostingDashboard
             shorturl = wc.DownloadString("http://eurl.me/shorten.php?longurl=" + longurl);
             return shorturl;
         }
+        public string URLShorten(string longurl, string shortURLbase = "eurl.me")
+        {
+            string shorturl;
+            WebClient wc = new WebClient();
+            longurl = HttpUtility.UrlEncode(longurl);
+            shorturl = wc.DownloadString("http://" + shortURLbase + "/shorten.php?longurl=" + longurl);
+            return shorturl;
+        }
 
     }
 
