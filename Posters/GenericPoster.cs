@@ -778,6 +778,15 @@ namespace iMacrosPostingDashboard
                 shortURLbase = property["shortURLbase"];
             else
                 shortURLbase = "eurl.me";
+            if (property.ContainsKey("shortequalslong"))
+                if (Convert.ToInt64(property["shortequalslong"]) == 1)
+                {
+                    tbltopics.ShortURL1 = tbltopics.LongURL1.ToString();
+                    tbltopics.ShortURL2 = tbltopics.LongURL2.ToString();
+                    tbltopics.Save();
+                    return;
+                }
+
 
 
             if ((tbltopics.LongURL1 != "") && (tbltopics.LongURL1 != null))
