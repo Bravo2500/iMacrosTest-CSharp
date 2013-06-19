@@ -700,6 +700,11 @@ namespace iMacrosPostingDashboard
                     if (KwdsNoSpace == "titulinis")
                     {
                         tbltopics.LongURL1 = tblaff.HomePageLink.ToString();
+                        if (property.ContainsKey("shortequalslong"))
+                        {
+                            if (Convert.ToInt64(property["shortequalslong"]) == 1)
+                                return;
+                        }
                         if (property.ContainsKey("NewURL"))
                         {
                             tbltopics.LongURL1 = "http://partner.jukoshop.com/?source=" + proj.ProjectName.ToLower() + "&date=" + TodaysDate;
@@ -708,6 +713,11 @@ namespace iMacrosPostingDashboard
                     else
                     {
                         tbltopics.LongURL1 = tblaff.PreKeywordLinkPart + KwdsNoSpace + tblaff.PostKeywordLinkPart;
+                        if (property.ContainsKey("shortequalslong"))
+                        {
+                            if (Convert.ToInt64(property["shortequalslong"]) == 1)
+                                return;
+                        }
                         if (property.ContainsKey("NewURL"))
                         {
                             tbltopics.LongURL1 = "http://partner.jukoshop.com/?source=" + proj.ProjectName.ToLower() + "&date=" + TodaysDate + "&keyword=" + KwdsNoSpace;
